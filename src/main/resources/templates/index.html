@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8" />
+	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} " />
+	<link th:href="@{/css/main.css}" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="container pt-3">
+		<p class="parrafo-titulo-1">TIENDA ONLINE - Informática I</p>
+		<p class="parrafo-titulo-2">Actividad 1 -- Danny Granados, Gian Carlo Chacon y Jorge Ivan Guzman</p>
+	</div>
+	<div th:replace="fragments/header"></div>
+	<div th:replace="fragments/mensajesControl"></div>
+
+	<div class="div-separador-form">
+		<hr class="separador-form" />
+	</div>
+	<div class="container pt-3">
+		<div class="row">
+			<div class="col-xs-12 col-sm-3 col-md-3">
+				<p class="parrafo-titulo-1" th:text="${totalCategorias}"></p>
+				<p class="parrafo-titulo-2">Categorias</p>
+			</div>
+			<div class="col-xs-12 col-sm-3 col-md-3">
+				<p class="parrafo-titulo-1" th:text="${totalProductos}"></p>
+				<p class="parrafo-titulo-2">Productos</p>
+			</div>
+			<div class="col-xs-12 col-sm-3 col-md-3">
+				<p class="parrafo-titulo-1" th:text="${totalClientes}"></p>
+				<p class="parrafo-titulo-2">Clientes</p>
+			</div>
+			<div class="col-xs-12 col-sm-3 col-md-3">
+				<p class="parrafo-titulo-1" th:text="${TotalVentas}"></p>
+				<p class="parrafo-titulo-2">Ventas</p>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

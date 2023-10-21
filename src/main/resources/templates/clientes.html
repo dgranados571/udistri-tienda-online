@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8" />
+	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} " />
+	<link th:href="@{/css/main.css}" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="container pt-3">
+		<p class="parrafo-titulo-1">TIENDA ONLINE - Informática I</p>
+		<p class="parrafo-titulo-2">Formulario Clientes</p>
+	</div>
+	<div th:replace="fragments/header"></div>
+
+	<div class="container pt-3">
+		<form th:action="@{/web/agregarCliente}" method="post" th:object="${formObject}">
+			<div class="row">
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Nombre Completo:</p>
+					<input type="text" th:field="*{nombreCliente}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Dirección:</p>
+					<input type="text" th:field="*{direccionCliente}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Teléfono:</p>
+					<input type="text" th:field="*{telefonoCliente}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Correo electrónico:</p>
+					<input type="text" th:field="*{emailCliente}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6"></div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<div th:switch="${elementoBotom}">
+						<div th:case="'elementoBotomCrear'" class="div-btn-user-action">
+							<button type="submit" class="btn btn-primary">Cargar Cliente</button>
+						</div>
+						<div th:case="'elementoBotomActualiza'" class="div-btn-user-action">
+							<button type="submit" class="btn btn-primary">Actualiza Cliente</button>
+						</div>
+					</div>
+					<input type="hidden" th:field="*{idFormObject}">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div th:replace="fragments/mensajesControl"></div>
+	<div class="div-separador-form">
+		<hr class="separador-form" />
+	</div>
+	<div class="container pt-3">
+		<div class="div-table">
+			<table class="table table-striped">
+				<thead class="head-table">
+					<tr>
+						<th></th>
+						<th>Nombre de Cliente</th>
+						<th>Direccion</th>
+						<th>Telefono</th>
+						<th>Correo</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="infoList : ${listaVistaClientes}">
+						<td th:text="${infoList.column1}"></td>
+						<td th:text="${infoList.column2}"></td>
+						<td th:text="${infoList.column3}"></td>
+						<td th:text="${infoList.column4}"></td>
+						<td th:text="${infoList.column5}"></td>
+						<td>
+							<form th:action="@{/web/actualiza/clientes/}+${infoList.column1}" method="get">
+								<button type="submit" class="btn btn-link">Actualizar</button>
+							</form>
+						</td>
+						<td>
+							<form th:action="@{/web/elimina/clientes/}+${infoList.column1}" method="get">
+								<button type="submit" class="btn btn-link">Eliminar</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8" />
+	<link th:rel="stylesheet" th:href="@{/webjars/bootstrap/4.0.0-2/css/bootstrap.min.css} " />
+	<link th:href="@{/css/main.css}" rel="stylesheet" />
+</head>
+
+<body>
+	<div class="container pt-3">
+		<p class="parrafo-titulo-1">TIENDA ONLINE - Informática I</p>
+		<p class="parrafo-titulo-2">Formulario Productos</p>
+	</div>
+	<div th:replace="fragments/header"></div>
+	<div class="container pt-3">
+		<form th:action="@{/web/agregarProducto}" method="post" th:object="${formObject}">
+			<div class="row">
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Nombre:</p>
+					<input type="text" th:field="*{nombreProducto}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Descripción:</p>
+					<input type="text" th:field="*{descripcionProducto}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Valor Unitario:</p>
+					<input type="text" th:field="*{valorUnitarioProducto}" class="form-control">
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<p class="parrafo-1">Categoria:</p>
+					<select th:field="*{idCategoria}" class="form-control">
+						<option th:value="0" th:text="Seleccione"></option>
+						<option th:each="optionsList : ${listOpcionesCategorias}" th:value="${optionsList.value}"
+							th:text="${optionsList.label}"></option>
+					</select>
+				</div>
+				<div class="col-xs-12 col-sm-6 col-md-6"></div>
+				<div class="col-xs-12 col-sm-6 col-md-6">
+					<div th:switch="${elementoBotom}">
+						<div th:case="'elementoBotomCrear'" class="div-btn-user-action">
+							<button type="submit" class="btn btn-primary">Cargar Producto</button>
+						</div>
+						<div th:case="'elementoBotomActualiza'" class="div-btn-user-action">
+							<button type="submit" class="btn btn-primary">Actualiza Producto</button>
+						</div>
+					</div>
+					<input type="hidden" th:field="*{idFormObject}">
+				</div>
+			</div>
+		</form>
+	</div>
+	<div th:replace="fragments/mensajesControl"></div>
+	<div class="div-separador-form">
+		<hr class="separador-form" />
+	</div>
+	<div class="container pt-3">
+		<div class="div-table">
+			<table class="table table-striped">
+				<thead class="head-table">
+					<tr>
+						<th>Id</th>
+						<th>Nombre de producto</th>
+						<th>Descripcion</th>
+						<th>Valor unitario</th>
+						<th>Categoria</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="infoList : ${listaVistaProductos}">
+						<td th:text="${infoList.column1}"></td>
+						<td th:text="${infoList.column2}"></td>
+						<td th:text="${infoList.column3}"></td>
+						<td th:text="${infoList.column4}"></td>
+						<td th:text="${infoList.column5}"></td>
+						<td>
+							<form th:action="@{/web/actualiza/productos/}+${infoList.column1}" method="get">
+								<button type="submit" class="btn btn-link">Actualizar</button>
+							</form>
+						</td>
+						<td>
+							<form th:action="@{/web/elimina/productos/}+${infoList.column1}" method="get">
+								<button type="submit" class="btn btn-link">Eliminar</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+
+
+</html>

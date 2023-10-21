@@ -1,0 +1,63 @@
+.parrafo-titulo-1{
+	font-size: 25px;
+	text-align: center;
+	padding: 0;
+}
+
+.parrafo-titulo-2{
+	font-size: 15px;
+	text-align: center;
+	padding: 0;
+}
+
+.parrafo-informacion{
+	margin: 12px 0 0 0 ;
+	font-weight: bold;
+}
+
+.div-btn-user-action{
+	height: 100%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-end;
+	margin-top: 1rem;
+}
+
+.div-container-opciones-header{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.div-message-info{
+	color: #0040A8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px;
+    margin: 0px;
+    font-weight: 100;		
+}
+
+.div-message-error{
+	color: red;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    padding: 7px;
+    margin: 0px;
+    font-weight: bold;   
+}
+
+.div-separador-form{
+	margin-top: 2rem;
+	padding: 0px 30px;
+	
+}
+
+.separador-form{
+	background-color: #28a745;
+    height: 3px;
+    border-radius: 20px;
+    margin: 14px 0px;
+}

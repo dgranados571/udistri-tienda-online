@@ -1,5 +1,6 @@
 package com.co.tiendaonline.dto;
 
+import com.co.tiendaonline.EnumConstantes;
 import com.co.tiendaonline.entity.Categorias;
 import com.co.tiendaonline.entity.Clientes;
 import com.co.tiendaonline.entity.Productos;
@@ -65,6 +66,38 @@ public class FormObject {
 		this.idFormObject = categoria.getIdCategoria();
 		this.nombreCategoria = categoria.getNombreCategoria();
 		this.descripcionCategoria = categoria.getDescripcionCategoria();
+	}
+	
+	
+	public FormObject(ListaVistas listaVista, String menuVista) {
+		super();
+		this.idFormObject = Long.parseLong(listaVista.getColumn1());
+		switch (menuVista) {
+		case EnumConstantes.CATEGORIAS:
+			this.nombreCategoria = listaVista.getColumn2();
+			this.descripcionCategoria = listaVista.getColumn3();	
+			break;
+		case EnumConstantes.PRODUCTOS:
+			this.nombreProducto = listaVista.getColumn2();
+			this.descripcionProducto = listaVista.getColumn3();
+			this.valorUnitarioProducto = listaVista.getColumn4();
+			this.idCategoria = Long.parseLong(listaVista.getColumn5());
+			break;
+		case EnumConstantes.CLIENTES:
+			this.nombreCliente = listaVista.getColumn2();
+			this.direccionCliente = listaVista.getColumn3();
+			this.telefonoCliente = listaVista.getColumn4();
+			this.emailCliente = listaVista.getColumn5();
+			break;
+		case EnumConstantes.VENTAS:
+			this.fechaVenta = listaVista.getColumn2();
+			this.idCliente = Long.parseLong(listaVista.getColumn3());
+			this.idProducto = Long.parseLong(listaVista.getColumn4());
+			this.cantidadVendida = Integer.parseInt(listaVista.getColumn5());
+			break;
+		default:
+			break;
+		}
 	}
 
 	public long getIdFormObject() {

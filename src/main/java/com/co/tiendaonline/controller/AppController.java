@@ -1,5 +1,13 @@
 package com.co.tiendaonline.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Type;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +36,8 @@ import com.co.tiendaonline.service.IClientesService;
 import com.co.tiendaonline.service.IProductosService;
 import com.co.tiendaonline.service.IVentasService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Controller
 public class AppController {
@@ -43,6 +53,10 @@ public class AppController {
 
 	@Autowired
 	IVentasService iVentasService;
+	
+	boolean servicePython = false;
+	
+	Gson gson = new Gson();
 
 	@GetMapping("/web/udistri")
 	public String getUdistriControl(HttpServletRequest request, HttpServletResponse reponse, Model model)
@@ -71,24 +85,65 @@ public class AppController {
 
 		FormObject formObject = new FormObject();
 		if (session.getAttribute(EnumConstantes.VISTA_EDICION) != null) {
+			Type listType = new TypeToken<ArrayList<ListaVistas>>(){}.getType();
 			menuVista = (String) session.getAttribute(EnumConstantes.VISTA_EDICION);
 			long idElement = (long) session.getAttribute(EnumConstantes.ELEMENT_EDICION_ID);
 			switch (menuVista) {
 			case EnumConstantes.CATEGORIAS:
-				Categorias entityCategorias = iCategoriasService.obtenerCategoriaporId(idElement);
-				formObject = new FormObject(entityCategorias);
+				if(servicePython) {
+					String response = sendGET("http://127.0.0.1:5000/bdserver/vistaEdicion/" + EnumConstantes.CATEGORIAS + "/" + idElement);
+					try {
+						List<ListaVistas> listaVista = gson.fromJson(response, listType);
+						formObject = new FormObject(listaVista.get(0), EnumConstantes.CATEGORIAS);
+					}catch (Exception e) {
+						System.out.println("Error --> " + e);
+					}
+				}else {
+					Categorias entityCategorias = iCategoriasService.obtenerCategoriaporId(idElement);
+					formObject = new FormObject(entityCategorias);
+				}
 				break;
-			case EnumConstantes.PRODUCTOS:
-				Productos entityProductos = iProductosService.obtenerProductosporId(idElement);
-				formObject = new FormObject(entityProductos);
+			case EnumConstantes.PRODUCTOS:				
+				if(servicePython) {
+					String response = sendGET("http://127.0.0.1:5000/bdserver/vistaEdicion/" + EnumConstantes.PRODUCTOS + "/" + idElement);
+					try {
+						List<ListaVistas> listaVista = gson.fromJson(response, listType);
+						formObject = new FormObject(listaVista.get(0), EnumConstantes.PRODUCTOS);
+					}catch (Exception e) {
+						System.out.println("Error --> " + e);
+					}
+				}else {
+					Productos entityProductos = iProductosService.obtenerProductosporId(idElement);
+					formObject = new FormObject(entityProductos);	
+				}
 				break;
 			case EnumConstantes.CLIENTES:
-				Clientes entityCliente = iClientesService.obtenerClienteporId(idElement);
-				formObject = new FormObject(entityCliente);
+				if(servicePython) {
+					String response = sendGET("http://127.0.0.1:5000/bdserver/vistaEdicion/" + EnumConstantes.CLIENTES + "/" + idElement);
+					try {
+						List<ListaVistas> listaVista = gson.fromJson(response, listType);
+						formObject = new FormObject(listaVista.get(0), EnumConstantes.CLIENTES);
+					}catch (Exception e) {
+						System.out.println("Error --> " + e);
+					}
+				}else {
+					Clientes entityCliente = iClientesService.obtenerClienteporId(idElement);
+					formObject = new FormObject(entityCliente);
+				}
 				break;
 			case EnumConstantes.VENTAS:
-				Ventas entityVentas = iVentasService.obtenerVentasporId(idElement);
-				formObject = new FormObject(entityVentas);
+				if(servicePython) {
+					String response = sendGET("http://127.0.0.1:5000/bdserver/vistaEdicion/" + EnumConstantes.VENTAS + "/" + idElement);
+					try {
+						List<ListaVistas> listaVista = gson.fromJson(response, listType);
+						formObject = new FormObject(listaVista.get(0), EnumConstantes.VENTAS);
+					}catch (Exception e) {
+						System.out.println("Error --> " + e);
+					}
+				}else {
+					Ventas entityVentas = iVentasService.obtenerVentasporId(idElement);
+					formObject = new FormObject(entityVentas);
+				}
 				break;
 			default:
 				break;
@@ -145,7 +200,7 @@ public class AppController {
 					categoriaEntity.setNombreCategoria(formObject.getNombreCategoria());
 					categoriaEntity.setDescripcionCategoria(formObject.getDescripcionCategoria());
 					iCategoriasService.agregarCategoria(categoriaEntity);
-					session.setAttribute(EnumConstantes.MESSAGE_INFO, "Categoria actualizada con exito");
+					session.setAttribute(EnumConstantes.MESSAGE_INFO, "Categoria actualizada con exito!!!");
 				}
 			} catch (Exception e) {
 				session.setAttribute(EnumConstantes.MESSAGE_ERROR,
@@ -308,84 +363,187 @@ public class AppController {
 
 	public List<ListObject> obtieneListaCategorias() {
 		List<ListObject> listOpcionesCategoria = new ArrayList<ListObject>();
-		List<Categorias> categoriasList = iCategoriasService.obtenerCategorias();
-		for (Categorias idElement : categoriasList) {
-			listOpcionesCategoria.add(new ListObject(idElement.getIdCategoria(), idElement.getNombreCategoria()));
+		Type listType = new TypeToken<ArrayList<ListaVistas>>(){}.getType();
+		if(servicePython) {
+			String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.CATEGORIAS);
+			try {
+				List<ListaVistas> listaVista = gson.fromJson(response, listType);
+				for (ListaVistas idElement : listaVista) {
+					listOpcionesCategoria.add(new ListObject(Long.parseLong(idElement.getColumn1()), idElement.getColumn2()));
+				}
+			}catch (Exception e) {
+				System.out.println("Error --> " + e);
+			}
+		}else {
+			List<Categorias> categoriasList = iCategoriasService.obtenerCategorias();
+			for (Categorias idElement : categoriasList) {
+				listOpcionesCategoria.add(new ListObject(idElement.getIdCategoria(), idElement.getNombreCategoria()));
+			}	
 		}
 		return listOpcionesCategoria;
 	}
 
 	public List<ListObject> obtieneListaClientes() {
 		List<ListObject> listOpcionesCategoria = new ArrayList<ListObject>();
-		List<Clientes> clientesList = iClientesService.obtenerClientes();
-		for (Clientes idElement : clientesList) {
-			listOpcionesCategoria.add(new ListObject(idElement.getIdCliente(), idElement.getNombreCliente()));
+		Type listType = new TypeToken<ArrayList<ListaVistas>>(){}.getType();		
+		if(servicePython) {
+			String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.CLIENTES);
+			try {
+				List<ListaVistas> listaVista = gson.fromJson(response, listType);
+				for (ListaVistas idElement : listaVista) {
+					listOpcionesCategoria.add(new ListObject(Long.parseLong(idElement.getColumn1()), idElement.getColumn2()));
+				}
+			}catch (Exception e) {
+				System.out.println("Error --> " + e);
+			}
+		}else {
+			List<Clientes> clientesList = iClientesService.obtenerClientes();
+			for (Clientes idElement : clientesList) {
+				listOpcionesCategoria.add(new ListObject(idElement.getIdCliente(), idElement.getNombreCliente()));
+			}	
 		}
 		return listOpcionesCategoria;
 	}
 
 	public List<ListObject> obtieneListaProductos() {
 		List<ListObject> listOpcionesCategoria = new ArrayList<ListObject>();
-		List<Productos> productosList = iProductosService.obtenerProductos();
-		for (Productos idElement : productosList) {
-			listOpcionesCategoria.add(new ListObject(idElement.getIdProducto(), idElement.getNombreProducto()));
+		if(servicePython) {
+			String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.PRODUCTOS);
+			Type listType = new TypeToken<ArrayList<ListaVistas>>(){}.getType();
+			try {
+				List<ListaVistas> listaVista = gson.fromJson(response, listType);
+				for (ListaVistas idElement : listaVista) {
+					listOpcionesCategoria.add(new ListObject(Long.parseLong(idElement.getColumn1()), idElement.getColumn2()));
+				}
+			}catch (Exception e) {
+				System.out.println("Error --> " + e);
+			}
+		}else {
+			List<Productos> productosList = iProductosService.obtenerProductos();
+			for (Productos idElement : productosList) {
+				listOpcionesCategoria.add(new ListObject(idElement.getIdProducto(), idElement.getNombreProducto()));
+			}	
 		}
 		return listOpcionesCategoria;
 	}
 
 	public List<ListaVistas> obtieneListaVista(String vista) {
+		Type listType = new TypeToken<ArrayList<ListaVistas>>(){}.getType();
 		List<ListaVistas> listaVista = new ArrayList<>();
 		switch (vista) {
 		case EnumConstantes.CATEGORIAS:
-			List<Categorias> categorias = iCategoriasService.obtenerCategorias();
-			for (Categorias idElement : categorias) {
-				ListaVistas elementoFila = new ListaVistas();
-				elementoFila.setColumn1(String.valueOf(idElement.getIdCategoria()));
-				elementoFila.setColumn2(idElement.getNombreCategoria());
-				elementoFila.setColumn3(idElement.getDescripcionCategoria());
-				listaVista.add(elementoFila);
+			if(servicePython) {
+				String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.CATEGORIAS);
+				try {
+					listaVista = gson.fromJson(response, listType) ;	
+				}catch (Exception e) {
+					System.out.println("Error --> " + e);
+				}
+			}else {
+				List<Categorias> categorias = iCategoriasService.obtenerCategorias();
+				for (Categorias idElement : categorias) {
+					ListaVistas elementoFila = new ListaVistas();
+					elementoFila.setColumn1(String.valueOf(idElement.getIdCategoria()));
+					elementoFila.setColumn2(idElement.getNombreCategoria());
+					elementoFila.setColumn3(idElement.getDescripcionCategoria());
+					listaVista.add(elementoFila);
+				}
 			}
 			break;
 		case EnumConstantes.PRODUCTOS:
-			List<Productos> productosList = iProductosService.obtenerProductos();
-			for (Productos idElement : productosList) {
-				ListaVistas elementoFila = new ListaVistas();
-				elementoFila.setColumn1(String.valueOf(idElement.getIdProducto()));
-				elementoFila.setColumn2(idElement.getNombreProducto());
-				elementoFila.setColumn3(idElement.getDescripcionProducto());
-				elementoFila.setColumn4(idElement.getValorUnitarioProducto());
-				elementoFila.setColumn5(idElement.getCategoria().getNombreCategoria());
-				listaVista.add(elementoFila);
+			if(servicePython) {
+				String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.PRODUCTOS);
+				try {
+					listaVista = gson.fromJson(response, listType) ;	
+				}catch (Exception e) {
+					System.out.println("Error --> " + e);
+				}
+			}else {
+				List<Productos> productosList = iProductosService.obtenerProductos();
+				for (Productos idElement : productosList) {
+					ListaVistas elementoFila = new ListaVistas();
+					elementoFila.setColumn1(String.valueOf(idElement.getIdProducto()));
+					elementoFila.setColumn2(idElement.getNombreProducto());
+					elementoFila.setColumn3(idElement.getDescripcionProducto());
+					elementoFila.setColumn4(idElement.getValorUnitarioProducto());
+					elementoFila.setColumn5(idElement.getCategoria().getNombreCategoria());
+					listaVista.add(elementoFila);
+				}	
 			}
 			break;
 		case EnumConstantes.CLIENTES:
-			List<Clientes> clientesList = iClientesService.obtenerClientes();
-			for (Clientes idElement : clientesList) {
-				ListaVistas elementoFila = new ListaVistas();
-				elementoFila.setColumn1(String.valueOf(idElement.getIdCliente()));
-				elementoFila.setColumn2(idElement.getNombreCliente());
-				elementoFila.setColumn3(idElement.getDireccionCliente());
-				elementoFila.setColumn4(idElement.getTelefonoCliente());
-				elementoFila.setColumn5(idElement.getEmailCliente());
-				listaVista.add(elementoFila);
+			if(servicePython) {
+				String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.CLIENTES);
+				try {
+					listaVista = gson.fromJson(response, listType) ;	
+				}catch (Exception e) {
+					System.out.println("Error --> " + e);
+				} 
+			}else {
+				List<Clientes> clientesList = iClientesService.obtenerClientes();
+				for (Clientes idElement : clientesList) {
+					ListaVistas elementoFila = new ListaVistas();
+					elementoFila.setColumn1(String.valueOf(idElement.getIdCliente()));
+					elementoFila.setColumn2(idElement.getNombreCliente());
+					elementoFila.setColumn3(idElement.getDireccionCliente());
+					elementoFila.setColumn4(idElement.getTelefonoCliente());
+					elementoFila.setColumn5(idElement.getEmailCliente());
+					listaVista.add(elementoFila);
+				}	
 			}
 			break;
 		case EnumConstantes.VENTAS:
-			List<Ventas> ventasList = iVentasService.obtenerVentas();
-			for (Ventas idElement : ventasList) {
-				ListaVistas elementoFila = new ListaVistas();
-				elementoFila.setColumn1(String.valueOf(idElement.getIdVenta()));
-				elementoFila.setColumn2(idElement.getFechaVenta());
-				elementoFila.setColumn3(idElement.getCliente().getNombreCliente());
-				elementoFila.setColumn4(idElement.getProducto().getNombreProducto());
-				elementoFila.setColumn5(String.valueOf(idElement.getCantidadVendida()));
-				listaVista.add(elementoFila);
+			if(servicePython) {
+				String response = sendGET("http://127.0.0.1:5000/bdserver/obtieneListaVista/" + EnumConstantes.VENTAS);
+				try {
+					listaVista = gson.fromJson(response, listType) ;	
+				}catch (Exception e) {
+					System.out.println("Error --> " + e);
+				} 
+			}else {
+				List<Ventas> ventasList = iVentasService.obtenerVentas();
+				for (Ventas idElement : ventasList) {
+					ListaVistas elementoFila = new ListaVistas();
+					elementoFila.setColumn1(String.valueOf(idElement.getIdVenta()));
+					elementoFila.setColumn2(idElement.getFechaVenta());
+					elementoFila.setColumn3(idElement.getCliente().getNombreCliente());
+					elementoFila.setColumn4(idElement.getProducto().getNombreProducto());
+					elementoFila.setColumn5(String.valueOf(idElement.getCantidadVendida()));
+					listaVista.add(elementoFila);
+				}	
 			}
 			break;
 		default:
 			break;
-		}
+		}				
 		return listaVista;
+	}
+	
+	public String sendGET(String urlStr) {
+		String responseObject = "";
+		try {
+			URL obj = new URL(urlStr);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+			con.setRequestMethod("GET");
+			int responseCode = con.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer response = new StringBuffer();
+				while ((inputLine = in.readLine()) != null) {
+					response.append(inputLine);
+				}
+				in.close();
+				responseObject = response.toString();
+			} else {
+				responseObject = "GET request no logra resolver.";
+			}
+		} catch (MalformedURLException | ProtocolException e) {
+			responseObject = "GET-1 Exepcion request no logra resolver. " + e;
+		} catch (IOException e) {
+			responseObject = "GET-2 Exepcion request no logra resolver. " + e;
+		}
+		return responseObject;
 	}
 
 }
